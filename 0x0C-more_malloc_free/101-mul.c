@@ -1,99 +1,108 @@
+#include "main.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "main.h"
 
+int is_num(char *str);
+void multiply(char *num1, char *num2);
 /**
- * is_digit - checks if a string contains a non-digit char
- * @s: string to be evaluated
+ * str_len - Finds the length of a string.
+ * @str: The string to be measured.
  *
- * Return: 0 if a non-digit is found, 1 otherwise
+ * Return: The length of the string.
  */
-int is_digit(char *s)
-{
-	int i = 0;
 
-	while (s[i])
-	{
-		if (s[i] < '0' || s[i] > '9')
-			return (0);
-		i++;
-	}
-	return (1);
-}
+int str_len(char *str)
+{
+	int len;
+	 
+	for (len = 0; str[len] != '\0'; len++)
+		;
+	return len;
+} 
+
 
 /**
- * _strlen - returns the length of a string
- * @s: string to evaluate
- *
- * Return: the length of the string
- */
-int _strlen(char *s)
-{
-	int i = 0;
-
-	while (s[i] != '\0')
-	{
-		i++;
-	}
-	return (i);
-}
-
-/**
- * errors - handles errors for main
- */
-void errors(void)
-{
-	printf("Error\n");
-	exit(98);
-}
-
-/**
- * main - multiplies two positive numbers
- * @argc: number of arguments
- * @argv: array of arguments
- *
- * Return: always 0 (Success)
+ * main - Multiplies two positive numbers.
+ * @argv: The number of arguments passed to the program.
+ * @argc: An array of pointers to the arguments.
+ * Return: 0.
  */
 int main(int argc, char *argv[])
 {
-	char *s1, *s2;
-	int len1, len2, len, i, carry, digit1, digit2, *result, a = 0;
+	char *num1, *num2;
 
-	s1 = argv[1], s2 = argv[2];
-	if (argc != 3 || !is_digit(s1) || !is_digit(s2))
-		errors();
-	len1 = _strlen(s1);
-	len2 = _strlen(s2);
-	len = len1 + len2 + 1;
-	result = malloc(sizeof(int) * len);
-	if (!result)
-		return (1);
-	for (i = 0; i <= len1 + len2; i++)
-		result[i] = 0;
-	for (len1 = len1 - 1; len1 >= 0; len1--)
+	if (argc != 3 || !is_num(argv[1]) || !is_num(argv[2]))
 	{
-		digit1 = s1[len1] - '0';
-		carry = 0;
-		for (len2 = _strlen(s2) - 1; len2 >= 0; len2--)
-		{
-			digit2 = s2[len2] - '0';
-			carry += result[len1 + len2 + 1] + (digit1 * digit2);
-			result[len1 + len2 + 1] = carry % 10;
-			carry /= 10;
-		}
-		if (carry > 0)
-			result[len1 + len2 + 1] += carry;
+		printf("Error\n");
+		exit(98);
 	}
-	for (i = 0; i < len - 1; i++)
-	{
-		if (result[i])
-			a = 1;
-		if (a)
-			_putchar(result[i] + '0');
-	}
-	if (!a)
-		_putchar('0');
-	_putchar('\n');
-	free(result);
+
+	num1 = argv[1];
+	num2 = argv[2];
+
+	if (*num1 == '0' || *num2 == '0')
+		printf("0\n");
+	else
+		multiply(num1, num2);
 	return (0);
+
+}
+
+void multiply(char *num1, char *num2)
+{
+	int len1, len2, i, j, res, *result;
+	
+	len1 = str_len(num1);
+	len2 = str_len(num2);
+
+	result = calloc(len1 + len2, sizeof(int));
+
+	for (i = len1 - 1; i >= 0; i--)
+	{
+		for (j = len2 - 1; j >= 0; j--)
+		{
+			res = (num1[i] - '0') * (num2[j] - '0');
+			result[i + j + 1] += res % 10;
+			result[i + j] += res / 10;
+		}
+	}
+
+	for (i = len1 + len2 - 1; i > 0; i--)
+	{
+		if(result[i] > 9)
+		{
+			result[i - 1] += result[i] / 10;
+			result[i] %= 10;
+		}
+	}
+
+	for (i = 0; i < len1 + len2; i++)
+	{
+		if (result[i] != 0)
+			break;
+	}	
+
+	for (; i < len1 + len2; i++)
+		printf("%d", result[i]);
+	printf("\n");
+
+	free(result);
+
+}
+
+/**
+ * is_num - determines if a string has only numeric characters
+ * @str: the input string
+ * Return: 1 if the string is numeric, 0 otherwise
+ */
+
+int is_num(char *str)
+{
+	while(*str)
+	{
+		if (*str < '0' || *str > '9')
+			return 0;
+		str++;
+	}
+	return 1;
 }
